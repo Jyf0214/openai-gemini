@@ -1,5 +1,3 @@
-import { Buffer } from "node:buffer";
-
 export default {
   async fetch (request) {
     if (request.method === "OPTIONS") {
@@ -322,25 +320,22 @@ const transformConfig = (req, isV3) => {
 };
 
 const parseImg = async (url) => {
-  let mimeType, data;
   if (url.startsWith("http://") || url.startsWith("https://")) {
     try {
-      const response = await fetch(url);
+      const response = await fetch(`https://wsrv.nl/?url=${url}&w=512&we&encoding=base64`);
       if (!response.ok) {
         throw new Error(`${response.status} ${response.statusText} (${url})`);
       }
-      mimeType = response.headers.get("content-type");
-      data = Buffer.from(await response.arrayBuffer()).toString("base64");
+      url = await response.text();
     } catch (err) {
       throw new Error("Error fetching image: " + err.toString());
     }
-  } else {
-    const match = url.match(/^data:(?<mimeType>.*?)(;base64)?,(?<data>.*)$/);
-    if (!match) {
-      throw new HttpError("Invalid image data: " + url, 400);
-    }
-    ({ mimeType, data } = match.groups);
   }
+  const match = url.match(/^data:(?<mimeType>.*?)(;base64)?,(?<data>.*)$/);
+  if (!match) {
+    throw new HttpError("Invalid image data: " + url, 400);
+  }
+  const { mimeType, data } = match.groups;
   return {
     inlineData: {
       mimeType,
