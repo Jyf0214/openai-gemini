@@ -192,3 +192,4 @@ For more details, refer to the [Gemini API docs](https://ai.google.dev/gemini-ap
 - [x] `embeddings`
   - [x] `dimensions`
 - [x] `models`
+
